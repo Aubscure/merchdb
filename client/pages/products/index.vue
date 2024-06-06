@@ -25,7 +25,7 @@
               <div class="flex w-full mt-auto">
                 <nuxt-link :to="`/products/${product.id}`">
                   <button class="px-4 py-2 font-bold text-gray-100 transition-colors duration-300 ease-in-out bg-indigo-600 rounded hover:bg-indigo-500">
-                    Update
+                    Edit
                   </button>
                 </nuxt-link>
               </div>

@@ -1,9 +1,9 @@
 <template>
-  <div class="lg:grid lg:grid-cols-2 lg:space-x-10">
-    <div id="preview box" class="p-6 bg-gray-800 rounded-lg ring-1 ring-gray-700">
+  <div class="flex items-center self-center justify-center w-auto ">
+    <!-- <div id="preview box" class="p-6 bg-gray-800 rounded-lg ring-1 ring-gray-700">
       <div v-if="state.products">
         <div class="flex justify-center">
-          <img :src="previewProductData.photo || URL.createObjectURL(state.data.photo)" alt="Product Photo" class="w-6/7 h-5/6" />
+          <img :src="previewProductData.photo || photoURL" alt="Product Photo" class="w-6/7 h-5/6" />
         </div>
         <div class="my-3 text-4xl text-gray-100">{{ previewProductData.name || state.data.name }}</div>
         <div class="my-3 text-lg text-gray-400">{{ previewProductData.description || state.data.description }}</div>
@@ -13,7 +13,7 @@
       <div v-else>
         <p>Loading product details...</p>
       </div>
-    </div>
+    </div> -->
     <div id="input box" class="grid justify-center grid-cols-1 px-6 bg-gray-800 rounded-lg ring-1 ring-gray-700">
       <div v-if="state.products" class="flex flex-col space-y-4">
         <label class="self-center my-4 text-lg font-medium text-gray-100">Update Product</label>
@@ -22,11 +22,24 @@
         <div class="flex justify-center space-x-4">
           <input v-model.number="state.data.quantity" @input="updatePreview" type="number" :placeholder="state.data.quantity" class="p-2 border-2 rounded-lg input hover:border-gray-700" />
           <input v-model.number="state.data.price" @input="updatePreview" type="number" :placeholder="state.data.price" class="p-2 border-2 rounded-lg input hover:border-gray-700" />
-          <input ref="fileInput" type="file" @change="handleFileChange" class="p-2 mb-4 border-2 border-gray-200 rounded-lg input hover:border-gray-700" />
         </div>
+        <!-- Modern drag-and-drop file input -->
+        <div 
+          @dragover.prevent 
+          @dragenter.prevent 
+          @drop.prevent="handleFileDrop" 
+          @click="triggerFileInput"
+          class="relative flex items-center justify-center p-6 border-2 border-gray-700 border-dashed rounded-lg cursor-pointer h-52 min-w-96 input hover:border-gray-200"
+        >
+          <span v-if="state.data.photo" class="text-gray-400">Drag and drop a photo here, or click to select</span>
+          <input type="file" @change="handleFileChange" class="hidden" ref="fileInput" />
+          <img v-if="state.data.photo" :src="previewProductData.photo || photoURL" alt="Photo Preview" class="absolute inset-0 object-cover w-full h-full rounded-lg" />
+        </div>
+        <p class="self-center mb-5 text-white">Image size up to 2MB only</p>
         <div>
-          <button @click="cancelUpdate" class="btn w-full mb-4 ring-1 hover:bg-[#1B5D88] text-white p-2 rounded-lg">Cancel</button>
-          <button @click="uploadData" class="w-full px-2 py-2 mb-8 text-gray-100 transition-colors duration-300 ease-in-out bg-[#0072BC] rounded hover:bg-[#1B5D88] hover:text-gray-100">Update</button>
+
+          <button @click="uploadData" class="w-full px-2 py-2 mb-4 text-gray-100 transition-colors duration-300 ease-in-out bg-[#0072BC] rounded-lg hover:bg-[#1B5D88] hover:text-gray-100">Save changes</button>
+          <button @click="cancelUpdate" class="w-full p-2 mb-8 text-white rounded-lg hover:ring-1 ">Cancel</button>
         </div>
       </div>
     </div>
@@ -34,7 +47,7 @@
 </template>
 
 <script setup>
-import { reactive, onMounted, ref } from 'vue'
+import { reactive, onMounted, ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -54,10 +67,24 @@ const state = reactive({
 
 const fileInput = ref(null)
 
+const photoURL = computed(() => {
+  return state.data.photo instanceof File ? URL.createObjectURL(state.data.photo) : null;
+});
+
 function handleFileChange(event) {
   const file = event.target.files[0]
   state.data.photo = file
   updatePreview()
+}
+
+function handleFileDrop(event) {
+  const file = event.dataTransfer.files[0]
+  state.data.photo = file
+  updatePreview()
+}
+
+function triggerFileInput() {
+  fileInput.value.click();
 }
 
 async function fetchProductDetails(id) {
@@ -85,6 +112,8 @@ async function fetchProductDetails(id) {
 onMounted(() => {
   state.id = router.currentRoute.value.params.id
   fetchProductDetails(state.id)
+  // Clear photo input when component mounts
+  state.data.photo = null;
 })
 
 const previewProductData = ref({ ...state.data })
