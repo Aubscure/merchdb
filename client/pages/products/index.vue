@@ -12,8 +12,11 @@
             </nuxt-link>
           </div>
         </div>
-        <div v-if="state.products.length" class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          <div v-for="product in state.products" :key="product.id" class="flex flex-col p-4 bg-gray-800 rounded-lg shadow-sm ring-1 ring-gray-700 shadow-gray-700">
+        <div v-if="state.isLoading"  class="flex items-center justify-center min-h-40">
+          <Spinner :is-active="true" />
+        </div>
+        <div v-else-if="currentproducts.length" class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div v-for="product in currentproducts" :key="product.id" class="flex flex-col p-4 bg-gray-800 rounded-lg shadow-sm ring-1 ring-gray-700 shadow-gray-700">
             <div>
               <img :src="getFullImageUrl(product.photo)" alt="Product Image" class="object-cover w-full h-32 rounded">
             </div>
@@ -32,28 +35,42 @@
             </div>
           </div>
         </div>
-        <div v-else class="min-h-screen text-center text-gray-100 text-7xl">
-          <p>Loading...</p>
+        <div v-else>
+          <EmptyState />>
         </div>
+        <pagination
+          :totalItems="totalItems"
+          :currentPage="state.currentPage"
+          :itemsPerPage="state.itemsPerPage"
+          @prevPage="prevPage"
+          @nextPage="nextPage"/>
       </div>
     </div>
   </div>
 </template>
+
 <script setup>
 import { reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import Spinner from '~/components/loading/Spinner.vue';
+import Pagination from '~/components/pagination/index.vue'
+import EmptyState from '~/components/form/EmptyState.vue';
 
 
 const router = useRouter()
 
 const state = reactive({
   products: [],
-  errors: null
+  errors: null,
+  isLoading: false,
+  currentPage: 1,
+  itemsPerPage: 8,
 })
 
 const baseUrl = 'http://127.0.0.1:8000/'  // Base URL of your Laravel app
 
 async function fetchProducts() {
+  state.isLoading = true
   const headers = {
     Authorization: "Bearer " + localStorage.getItem('_token'),
     Accept: "application/json"
@@ -75,13 +92,37 @@ async function fetchProducts() {
     // Navigate to login page if not logged in
     if (error.response && error.response.status === 401) {
       router.push('/')
+    } 
+  } finally {
+      state.isLoading = false
     }
-  }
 }
 
 function getFullImageUrl(photo) {
   console.log(baseUrl + photo)
   return baseUrl + photo
+}
+
+const totalPages = computed(() => Math.ceil(state.products.length / state.itemsPerPage))
+
+const currentproducts = computed(() => {
+  const start = (state.currentPage - 1) * state.itemsPerPage
+  const end = start + state.itemsPerPage
+  return state.products.slice(start, end)
+})
+
+const totalItems = computed(() => state.products.length)
+
+const nextPage = () => {
+  if (state.currentPage < totalPages.value) {
+    state.currentPage++
+  }
+}
+
+const prevPage = () => {
+  if (state.currentPage > 1) {
+    state.currentPage--
+  }
 }
 
 onMounted(() => {

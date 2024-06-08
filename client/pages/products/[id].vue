@@ -1,45 +1,61 @@
 <template>
-  <div class="flex items-center self-center justify-center w-auto ">
-    <!-- <div id="preview box" class="p-6 bg-gray-800 rounded-lg ring-1 ring-gray-700">
-      <div v-if="state.products">
-        <div class="flex justify-center">
-          <img :src="previewProductData.photo || photoURL" alt="Product Photo" class="w-6/7 h-5/6" />
-        </div>
-        <div class="my-3 text-4xl text-gray-100">{{ previewProductData.name || state.data.name }}</div>
-        <div class="my-3 text-lg text-gray-400">{{ previewProductData.description || state.data.description }}</div>
-        <div class="my-3 text-xl text-gray-100">Quantity: {{ previewProductData.quantity || state.data.quantity }}</div>
-        <div class="my-3 text-xl text-gray-100">Price: {{ previewProductData.price || state.data.price }}</div>
-      </div>
-      <div v-else>
-        <p>Loading product details...</p>
-      </div>
-    </div> -->
-    <div id="input box" class="grid justify-center grid-cols-1 px-6 bg-gray-800 rounded-lg ring-1 ring-gray-700">
-      <div v-if="state.products" class="flex flex-col space-y-4">
-        <label class="self-center my-4 text-lg font-medium text-gray-100">Update Product</label>
-        <input v-model="state.data.name" @input="updatePreview" type="text" name="product name" class="h-10 px-3 py-2 rounded-lg" :placeholder="state.data.name">
-        <textarea v-model="state.data.description" @input="updatePreview" name="description" cols="30" rows="10" class="px-3 py-2 rounded-lg h-28" :placeholder="state.data.description"></textarea>
-        <div class="flex justify-center space-x-4">
-          <input v-model.number="state.data.quantity" @input="updatePreview" type="number" :placeholder="state.data.quantity" class="p-2 border-2 rounded-lg input hover:border-gray-700" />
-          <input v-model.number="state.data.price" @input="updatePreview" type="number" :placeholder="state.data.price" class="p-2 border-2 rounded-lg input hover:border-gray-700" />
-        </div>
-        <!-- Modern drag-and-drop file input -->
-        <div 
-          @dragover.prevent 
-          @dragenter.prevent 
-          @drop.prevent="handleFileDrop" 
-          @click="triggerFileInput"
-          class="relative flex items-center justify-center p-6 border-2 border-gray-700 border-dashed rounded-lg cursor-pointer h-52 min-w-96 input hover:border-gray-200"
-        >
-          <span v-if="state.data.photo" class="text-gray-400">Drag and drop a photo here, or click to select</span>
-          <input type="file" @change="handleFileChange" class="hidden" ref="fileInput" />
-          <img v-if="state.data.photo" :src="previewProductData.photo || photoURL" alt="Photo Preview" class="absolute inset-0 object-cover w-full h-full rounded-lg" />
-        </div>
-        <p class="self-center mb-5 text-white">Image size up to 2MB only</p>
-        <div>
+  <div class="">
+    <div class="">
 
-          <button @click="uploadData" class="w-full px-2 py-2 mb-4 text-gray-100 transition-colors duration-300 ease-in-out bg-[#0072BC] rounded-lg hover:bg-[#1B5D88] hover:text-gray-100">Save changes</button>
-          <button @click="cancelUpdate" class="w-full p-2 mb-8 text-white rounded-lg hover:ring-1 ">Cancel</button>
+      <Notification :show="show" :success="success" :errorMessage="state.errors" successMessage="Product successfully saved!" @update:show="show = $event" />
+
+      <div class="flex items-center justify-between mb-10">
+        <h1 class="text-3xl font-bold text-gray-200">Update Product</h1>
+        <nuxt-link to="../products" class="px-4 py-2 font-bold text-white transition-colors duration-300 ease-in-out bg-indigo-600 rounded hover:bg-indigo-500">Go back</nuxt-link>
+      </div>
+      
+      <div v-if="state.isLoading" class="flex items-center justify-center min-h-40">
+        <Spinner :is-active="true" />
+      </div>
+      
+      <div v-else-if="!state.isLoading" class="flex justify-between space-x-10">
+        <div id="preview box" class="w-11/12 p-6 px-10 bg-gray-800 rounded-lg ring-1 ring-gray-700">
+          <div v-if="state.products" class="flex flex-col h-auto p-4 space-y-10">
+            <div class="flex justify-center w-auto h-96">
+              <img :src="previewProductData.photo || photoURL" alt="Product Photo" class="object-contain"/>
+            </div>
+            <div class="h-auto space-y-2 text-gray-200">
+              <div class="flex justify-between text-4xl font-semibold space-x-44">
+                <div class="text-wrap">{{ previewProductData.name || state.data.name }}</div>
+                <div class="flex items-start">{{ previewProductData.price || state.data.price }}</div>
+              </div>
+              <div class="flex justify-end text-lg">In Stock: {{ previewProductData.quantity || state.data.quantity }}</div>
+              <div class="text-lg font-light text-justify">{{ previewProductData.description || state.data.description }}</div>
+            </div>
+          </div>
+        </div>
+        <div id="input box" class="bg-gray-800 rounded-lg ring-1 ring-gray-700">
+          <div v-if="state.products" class="flex flex-col h-auto p-4 space-y-5">
+            <!-- <label class="self-center my-4 text-lg font-medium text-gray-100">Update Product</label> -->
+            <input v-model="state.data.name" @input="updatePreview" type="text" name="product name" class="h-10 px-3 py-2 rounded-lg" :placeholder="state.data.name">
+            <textarea v-model="state.data.description" @input="updatePreview" name="description" cols="30" rows="10" class="px-3 py-2 rounded-lg h-28" :placeholder="state.data.description"></textarea>
+            <div class="flex justify-center space-x-4">
+              <input v-model.number="state.data.quantity" @input="updatePreview" type="number" :placeholder="state.data.quantity" class="p-2 border-2 rounded-lg input hover:border-gray-700" />
+              <input v-model.number="state.data.price" @input="updatePreview" type="number" :placeholder="state.data.price" class="p-2 border-2 rounded-lg input hover:border-gray-700" />
+            </div>
+            <!-- Modern drag-and-drop file input -->
+            <div 
+              @dragover.prevent 
+              @dragenter.prevent 
+              @drop.prevent="handleFileDrop" 
+              @click="triggerFileInput"
+              class="relative flex items-center justify-center p-6 border-2 border-gray-700 border-dashed rounded-lg cursor-pointer h-60 input hover:border-gray-200"
+            >
+              <span v-if="!state.data.photo" class="text-gray-400">Drag and drop a photo here, or click to select</span>
+              <input type="file" @change="handleFileChange" class="hidden" ref="fileInput" />
+              <img v-if="state.data.photo" :src="previewProductData.photo || photoURL" alt="Photo Preview" class="absolute inset-0 object-contain w-full h-full rounded-lg" />
+            </div>
+            <p class="self-center text-white">Image size up to 2MB only</p>
+            <div class="space-y-5">
+              <button @click="uploadData" class="w-full px-2 py-2 text-gray-100 transition-colors duration-300 ease-in-out bg-indigo-600 rounded-lg hover:bg-indigo-500 hover:text-gray-100">Save changes</button>
+              <button @click="cancelUpdate" class="w-full p-2 text-white bg-indigo-900 bg-opacity-50 rounded-lg hover:ring-1">Cancel</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -49,13 +65,18 @@
 <script setup>
 import { reactive, onMounted, ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import Spinner from '~/components/loading/Spinner.vue';
+import Notification from '~/components/form/Notification.vue';
 
 const router = useRouter()
+const show = ref(false);
+const success = ref(false);
 
 const state = reactive({
   id: null,
   products: null,
   errors: null,
+  isLoading: false,
   data: {
     name: null,
     description: null,
@@ -68,7 +89,10 @@ const state = reactive({
 const fileInput = ref(null)
 
 const photoURL = computed(() => {
-  return state.data.photo instanceof File ? URL.createObjectURL(state.data.photo) : null;
+  if (state.data.photo && state.data.photo instanceof File) {
+    return URL.createObjectURL(state.data.photo);
+  }
+  return null;
 });
 
 function handleFileChange(event) {
@@ -88,6 +112,7 @@ function triggerFileInput() {
 }
 
 async function fetchProductDetails(id) {
+  state.isLoading = true;
   const params = {
     Authorization: "Bearer " + localStorage.getItem('_token'),
     Accept: "application/json"
@@ -102,10 +127,15 @@ async function fetchProductDetails(id) {
     previewProductData.value = { ...response.data }
     state.products = true
   } catch (error) {
-    state.errors = error
+    state.errors = error.message;
+    success.value = false; 
+    show.value = true; 
+    setTimeout(() => show.value = false, 1500);
     console.error('Error:', error)
 
     router.push('/')
+  } finally {
+    state.isLoading = false;
   }
 }
 
@@ -124,7 +154,7 @@ const updatePreview = () => {
     description: state.data.description,
     quantity: state.data.quantity,
     price: state.data.price,
-    photo: state.data.photo ? URL.createObjectURL(state.data.photo) : state.data.photo
+    photo: state.data.photo ? (state.data.photo instanceof File ? URL.createObjectURL(state.data.photo) : state.data.photo) : null
   };
 };
 
@@ -149,12 +179,18 @@ const updateProduct = async () => {
       throw new Error('Failed to update product')
     }
 
-    alert("Product details successfully updated!")
+    success.value = true; 
+    show.value = true; 
+    setTimeout(() => {
+      show.value = false;
+      router.push('/products')
+    }, 1500);
     console.log('Product updated:', await response.json())
-
-    router.push('/products')
   } catch (error) {
-    state.errors = error.message
+    state.errors = error.message;
+    success.value = false; 
+    show.value = true; 
+    setTimeout(() => show.value = false, 1500);
     console.error('Error updating product:', error)
   }
 }
@@ -180,7 +216,10 @@ const updatePhoto = async () => {
     console.log('Photo updated:', await response.json())
     window.location.reload();
   } catch (error) {
-    state.errors = error.message
+    state.errors = error.message;
+    success.value = false; 
+    show.value = true; 
+    setTimeout(() => show.value = false, 1500);
     console.error('Error updating photo:', error)
   }
 }
@@ -191,6 +230,8 @@ const cancelUpdate = () => {
 
 const uploadData = async () => {
   await updateProduct();
-  await updatePhoto();
+  if (state.data.photo instanceof File) {
+    await updatePhoto();
+  }
 }
 </script>

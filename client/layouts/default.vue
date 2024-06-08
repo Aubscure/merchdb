@@ -30,8 +30,8 @@
                                 class="flex flex-col px-6 pb-2 overflow-y-auto bg-gray-900 grow gap-y-5 ring-1 ring-white/10">
                                 <div class="flex items-center h-16 shrink-0">
                                     <img class="w-auto h-8"
-                                        src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500"
-                                        alt="Your Company" />
+                                        src="../assets/css/img/LOGO1.png"
+                                        alt="STI Education Services Group, Inc." />
                                 </div>
                                 <nav class="flex flex-col flex-1">
                                     <ul role="list" class="flex-1 -mx-2 space-y-1">
@@ -54,7 +54,7 @@
         <!-- Static sidebar for desktop -->
         <div class="hidden lg:fixed lg:inset-y-0 lg:left-0 lg:z-50 lg:block lg:w-60 lg:overflow-y-auto lg:bg-gray-900 lg:pb-4">
             <div class="flex items-center justify-center h-16 shrink-0">
-                <img class="w-auto h-8" src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500" alt="Your Company" />
+                <img class="w-auto h-8" src="../assets/css/img/LOGO1.png" alt="STI Education Services Group, Inc." />
             </div>
             <nav class="mt-8">
                 <ul role="list" class="px-2 space-y-1">
@@ -103,7 +103,7 @@
                             <MenuButton class="-m-1.5 flex items-center p-1.5">
                                 <span class="sr-only">Open user menu</span>
                                 <img class="w-8 h-8 rounded-full bg-gray-50"
-                                    :src="state.user.photo"
+                                    src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
                                     alt="" />
                                 <span class="hidden lg:flex lg:items-center">
                                     <span class="ml-4 text-sm font-semibold leading-6 text-gray-100" aria-hidden="true">{{ state.user.name }}</span>
@@ -136,21 +136,15 @@
                 </div>
             </main>
         </div>
-
-        <!-- <aside
-            class="fixed bottom-0 hidden px-4 py-6 overflow-y-auto border-r border-gray-200 left-20 top-16 w-96 sm:px-6 lg:px-8 xl:block">
-            Secondary column (hidden on smaller screens)
-            
-        </aside> -->
     </div>  
 
 
-        <footer class="relative ml-20 bg-gray-900 ring-1 ring-gray-700" aria-labelledby="footer-heading">
+        <footer class="relative bg-grey-900 ring-1 ring-gray-700 lg:ml-52" aria-labelledby="footer-heading">
             <h2 id="footer-heading" class="sr-only">Footer</h2>
             <div class="px-6 pt-8 pb-8 mx-auto max-w-7xl sm:pt-24 lg:px-8 lg:pt-32">
                 <div class="xl:grid xl:grid-cols-3 xl:gap-8">
                     <img class="h-7" src="../assets/css/img/LOGO1.png"
-                        alt="Company name" />
+                        alt="STI Education Services Group, Inc." />
                     <div class="grid grid-cols-2 gap-8 mt-16 xl:col-span-2 xl:mt-0">
                         <div class="md:grid md:grid-cols-2 md:gap-8">
                             <div>
@@ -219,7 +213,7 @@
                             <component :is="item.icon" class="w-6 h-6" aria-hidden="true" />
                         </a>
                     </div>
-                    <p class="mt-8 text-xs leading-5 text-gray-400 md:order-1 md:mt-0">&copy; 2020 Your Company, Inc. All rights
+                    <p class="mt-8 text-xs leading-5 text-gray-400 md:order-1 md:mt-0">&copy; 2024 STI Education Services Group, Inc. All rights
                         reserved.</p>
                 </div>
             </div>
@@ -242,26 +236,20 @@ import {
 import {
     Bars3Icon,
     BellIcon,
-    CalendarIcon,
-    ChartPieIcon,
-    DocumentDuplicateIcon,
-    ArchiveBoxIcon,
     HomeIcon,
-    UsersIcon,
     XMarkIcon,
+    ShoppingBagIcon,
+    ClipboardDocumentListIcon,
 } from '@heroicons/vue/24/outline'
 import { ChevronDownIcon, MagnifyingGlassIcon } from '@heroicons/vue/20/solid'
 
 const navigationheader = [
-    { name: 'Dashboard', href: '/dashboard', icon: HomeIcon, current: true },
-    { name: 'Team', href: '#', icon: UsersIcon, current: false },
-    { name: 'Products', href: '/products', icon: ArchiveBoxIcon, current: true },
-    { name: 'Calendar', href: '/calendar', icon: CalendarIcon, current: false },
-    { name: 'Documents', href: '#', icon: DocumentDuplicateIcon, current: false },
-    { name: 'Reports', href: '#', icon: ChartPieIcon, current: false },
+    { name: 'Dashboard', href: '/dashboard', icon: HomeIcon, current: false },
+    { name: 'Products', href: '/products', icon: ShoppingBagIcon, current: false },
+    { name: 'Orders', href: '/orders', icon: ClipboardDocumentListIcon, current: false },
 ]
 const userNavigation = [
-    { name: 'Your profile', href: '#',  },
+    // { name: 'Your profile', href: '#',  },
     { name: 'Sign out', onClick: handleSignOut },
 ]
 
@@ -371,7 +359,6 @@ const state = reactive({
         id: null,
         name: null,
         email: null,
-        photo: null,
     },
 })
 
@@ -389,7 +376,6 @@ async function fetchUser(){
     state.user.id = response.id
     state.user.name = response.name
     state.user.email = response.email
-    state.user.photo = response.photo
 
     }
 
